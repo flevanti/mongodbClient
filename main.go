@@ -13,7 +13,7 @@ var mongoDb *mongo.Database
 var mongoCollectionsList = make(map[string]bool)
 
 // initialiseMongo
-func initialiseMongo(uri string, db string) (bool, error) {
+func Connect(uri string, db string) (bool, error) {
 	if uri == "" {
 		return false, errors.New("uri not provided")
 	}
@@ -23,7 +23,8 @@ func initialiseMongo(uri string, db string) (bool, error) {
 	if err != nil {
 		return false, errors.New("Mongo db client creation failed: " + err.Error())
 	}
-
+    defer closeMongo()
+	
 	// SELECT DATABASE
 	dbExists, err := databaseExists(db)
 	if err != nil {
