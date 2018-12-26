@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"github.com/mongodb/mongo-go-driver/bson"
-	"github.com/mongodb/mongo-go-driver/core/command"
 	"github.com/mongodb/mongo-go-driver/mongo"
 )
 
@@ -24,7 +23,7 @@ func Connect(uri string, db string) (bool, error) {
 		return false, errors.New("Mongo db client creation failed: " + err.Error())
 	}
     defer closeMongo()
-	
+
 	// SELECT DATABASE
 	dbExists, err := databaseExists(db)
 	if err != nil {
@@ -45,7 +44,7 @@ func Connect(uri string, db string) (bool, error) {
 }
 
 func retrieveCollectionsList() error {
-	var cur command.Cursor
+	var cur mongo.Cursor
 	var err error
 	cnt := context.Background()
 
