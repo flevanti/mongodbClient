@@ -3,7 +3,6 @@ package mongodbClient
 import (
 	"context"
 	"errors"
-	"github.com/mongodb/mongo-go-driver/bson"
 	"github.com/mongodb/mongo-go-driver/mongo"
 )
 
@@ -35,39 +34,40 @@ func Connect(uri string, db string) (bool, error) {
 	mongoDb = mongoClient.Database(db)
 
 	// RETRIEVE COLLECTIONS LIST
-	err = retrieveCollectionsList()
-	if err != nil {
-		return false, errors.New("Mongo db collections list not retrieved 💥:" + err.Error())
-	}
+	// TODO fix the issue around the bson newdocument .... driver has changed since last time....FFS
+	//err = retrieveCollectionsList()
+	//if err != nil {
+	//	return false, errors.New("Mongo db collections list not retrieved 💥:" + err.Error())
+	//}
 
 	return true, nil
 }
 
-func retrieveCollectionsList() error {
-	var cur mongo.Cursor
-	var err error
-	cnt := context.Background()
-
-	cur, err = mongoDb.ListCollections(context.Background(), nil)
-	if err != nil {
-		return errors.New("Mongo db collections list not retrieved: " + err.Error())
-	}
-
-	for cur.Next(cnt) {
-		elem := bson.NewDocument()
-		if err := cur.Decode(elem); err != nil {
-			return errors.New("Unable to decode element while reading collections list: " + err.Error())
-		}
-		name := elem.Lookup("name").StringValue()
-		mongoCollectionsList[name] = true
-	}
-
-	if err := cur.Err(); err != nil {
-		return errors.New("Cursor error while reading collections list: " + err.Error())
-	}
-
-	return nil
-}
+//func retrieveCollectionsList() error {
+//	var cur mongo.Cursor
+//	var err error
+//	cnt := context.Background()
+//
+//	cur, err = mongoDb.ListCollections(context.Background(), nil)
+//	if err != nil {
+//		return errors.New("Mongo db collections list not retrieved: " + err.Error())
+//	}
+//
+//	for cur.Next(cnt) {
+//		elem := bson.NewDocument()
+//		if err := cur.Decode(elem); err != nil {
+//			return errors.New("Unable to decode element while reading collections list: " + err.Error())
+//		}
+//		name :=  elem.Lookup("name").StringValue()
+//		mongoCollectionsList[name] = true
+//	}
+//
+//	if err := cur.Err(); err != nil {
+//		return errors.New("Cursor error while reading collections list: " + err.Error())
+//	}
+//
+//	return nil
+//}
 
 func databaseExists(databaseName string) (bool, error) {
 	var databasesList []string
