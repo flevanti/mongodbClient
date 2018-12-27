@@ -8,8 +8,8 @@ import (
 )
 
 type connType struct {
-	client *mongo.Client
-	db     *mongo.Database
+	Client *mongo.Client
+	Db     *mongo.Database
 }
 
 // initialiseMongo
@@ -22,7 +22,7 @@ func Connect(uri string, db string) (*connType, error) {
 	}
 	var err error
 	// CREATE CLIENT
-	newConn.client, err = mongo.Connect(context.Background(), uri, nil)
+	newConn.Client, err = mongo.Connect(context.Background(), uri, nil)
 	if err != nil {
 		return newConn, errors.New("Mongo db client creation failed: " + err.Error())
 	}
@@ -36,8 +36,8 @@ func Connect(uri string, db string) (*connType, error) {
 	//	return false, errors.New("provided mongo db does not exists")
 	//}
 	//newConn.client.Connect(context.Background());
-	newConn.db = newConn.client.Database(db)
-	cur, err := newConn.db.ListCollections(context.Background(), nil)
+	newConn.Db = newConn.Client.Database(db)
+	cur, err := newConn.Db.ListCollections(context.Background(), nil)
 
 	cur = cur
 	// RETRIEVE COLLECTIONS LIST
@@ -57,7 +57,7 @@ func (conn connType) RetrieveCollectionsList() ([]string, error) {
 
 	cnt := context.Background()
 
-	cur, err = conn.db.ListCollections(context.Background(), nil)
+	cur, err = conn.Db.ListCollections(context.Background(), nil)
 	if err != nil {
 		return nil, errors.New("Mongo db collections list not retrieved: " + err.Error())
 	}
@@ -102,8 +102,8 @@ func (conn connType) RetrieveCollectionsList() ([]string, error) {
 //}
 
 func (conn connType) Close() {
-	_ = conn.client.Disconnect(context.Background())
-	conn.client = nil
-	conn.db = nil
+	_ = conn.Client.Disconnect(context.Background())
+	conn.Client = nil
+	conn.Db = nil
 
 }
