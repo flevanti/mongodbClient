@@ -7,20 +7,21 @@ import (
 	"github.com/mongodb/mongo-go-driver/x/bsonx"
 )
 
-type connType struct {
-	Client *mongo.Client
-	Db     *mongo.Database
+type ConnType struct {
+	Client      *mongo.Client
+	Db          *mongo.Database
+	Collections []string
 }
 
 // initialiseMongo
-func Connect(uri string, db string) (*connType, error) {
-	//var mongoClient *mongo.Client
-	//var mongoDb *mongo.Database
-	var newConn = new(connType);
+func Connect(uri string, db string) (*ConnType, error) {
+	var newConn = new(ConnType);
+	var err error
+
 	if uri == "" {
 		return newConn, errors.New("uri not provided")
 	}
-	var err error
+
 	// CREATE CLIENT
 	newConn.Client, err = mongo.Connect(context.Background(), uri, nil)
 	if err != nil {
@@ -28,29 +29,17 @@ func Connect(uri string, db string) (*connType, error) {
 	}
 
 	// SELECT DATABASE
-	//dbExists, err := databaseExists(db)
-	//if err != nil {
-	//	return false, errors.New("Error while retrieving databases list 💥: " + err.Error())
-	//}
-	//if !dbExists {
-	//	return false, errors.New("provided mongo db does not exists")
-	//}
-	//newConn.client.Connect(context.Background());
 	newConn.Db = newConn.Client.Database(db)
-	cur, err := newConn.Db.ListCollections(context.Background(), nil)
 
-	cur = cur
-	// RETRIEVE COLLECTIONS LIST
-	// TODO fix the issue around the bson newdocument .... driver has changed since last time....FFS
-	//err = retrieveCollectionsList()
-	//if err != nil {
-	//	return false, errors.New("Mongo db collections list not retrieved 💥:" + err.Error())
-	//}
-
+	//COLLECTIONS LIST
+	newConn.Collections, err = newConn.RetrieveCollectionsList()
+	if err != nil {
+		return newConn, errors.New("Mongo db failed to retrieve collections list: " + err.Error())
+	}
 	return newConn, nil
 }
 
-func (conn connType) RetrieveCollectionsList() ([]string, error) {
+func (conn ConnType) RetrieveCollectionsList() ([]string, error) {
 	var cur mongo.Cursor
 	var err error
 	var mongoCollectionsList []string
@@ -101,7 +90,7 @@ func (conn connType) RetrieveCollectionsList() ([]string, error) {
 //	return exists
 //}
 
-func (conn connType) Close() {
+func (conn ConnType) Close() {
 	_ = conn.Client.Disconnect(context.Background())
 	conn.Client = nil
 	conn.Db = nil
